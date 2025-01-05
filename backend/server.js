@@ -1,22 +1,34 @@
 // Load Environment Variables
 require('dotenv').config()
 
-// Initialize express app
+
 const express = require('express')
+const mongoose = require('mongoose')
+const workoutRoutes = require('./routes/workouts')
+
+// express app
 const app = express()
 
 // middleware
+app.use(express.json())
 app.use((req, res, next) => {
     console.log(req.path, req.method)
     next()
 })
-// routes
-app.get('/', (req, res) =>{
-    res.json({mssg: 'hello word'})
-})
 
-// listen for requests
-app.listen(process.env.PORT, () => {
-    console.log('listening on port',process.env.PORT)
-})
+// routes
+app.use('/api/workouts', workoutRoutes)
+
+// connect to db
+mongoose.connect(process.env.MONGO_URL)
+    .then(() => {
+        // listen for requests
+        app.listen(process.env.PORT, () => {
+            console.log('connected to DB and listening on port',process.env.PORT)
+        })
+    })
+    .catch((error) =>{
+        console.error('Failed to connect to MongoDB',error)
+    })
+
 
